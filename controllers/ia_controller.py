@@ -4,13 +4,14 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from models.venta_dao import VentaDAO
 
-# 🔥 Apagamos los mensajes de alerta internos de TensorFlow para que la consola quede limpia
+# 🔥 Apagamos los mensajes de alerta internos
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+# 👇 Librerías pesadas comentadas para que Render no explote
+# import numpy as np
+# import tensorflow as tf
+# from keras.models import Sequential
+# from keras.layers import Dense
 
 load_dotenv()
 
@@ -21,43 +22,39 @@ class IAController:
     def entrenar_red_neuronal_keras(self, ventas_brutas):
         """
         Crea, entrena y ejecuta una Red Neuronal de Regresión usando Keras y TensorFlow.
-        X = Secuencia de tiempo (Venta 1, Venta 2, Venta 3...)
-        Y = Ganancia Neta de cada venta
+        (ESTA FUNCIÓN ESTÁ APAGADA TEMPORALMENTE PARA EL DESPLIEGUE EN RENDER)
         """
-        try:
-            if len(ventas_brutas) < 3:
-                return None, "Bro, se necesitan al menos 3 ventas registradas para que la Red Neuronal pueda hallar un patrón."
+        # 🔥 Simplemente devolvemos un mensaje de error controlado. 
+        # Esto evita que se ejecute toda la matemática pesada de abajo.
+        return None, "La predicción avanzada con Redes Neuronales está desactivada en la nube por límites de memoria."
 
-            # 1. Preparar los datos con NumPy arrays (Indispensable para TensorFlow)
-            # X necesita forma de matriz columna (-1, 1)
-            X = np.array([i for i in range(len(ventas_brutas))], dtype=np.float32).reshape(-1, 1)
-            # Y es el objetivo: Ganancia neta de la venta (v[4])
-            y = np.array([float(v[4]) for v in ventas_brutas], dtype=np.float32)
-
-            # 2. Arquitectura de la Red Neuronal (Deep Learning)
-            model = Sequential([
-                Dense(64, activation='relu', input_shape=(1,)), # Capa de entrada + Oculta 1
-                Dense(32, activation='relu'),                  # Capa Oculta 2
-                Dense(1)                                       # Capa de salida (Regresión lineal)
-            ])
-
-            # 3. Compilar el modelo con optimizador Adam y pérdida de Error Cuadrático Medio
-            model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.01), loss='mse')
-
-            # 4. Entrenar el modelo (verbose=0 para que no sature la terminal con barras de carga)
-            model.fit(X, y, epochs=150, verbose=0)
-
-            # 5. Predecir el siguiente punto en el tiempo (la próxima venta estimada)
-            siguiente_punto = np.array([[len(ventas_brutas)]], dtype=np.float32)
-            prediccion_futura = model.predict(siguiente_punto, verbose=0)[0][0]
-
-            if prediccion_futura < 0: 
-                prediccion_futura = 0.0
-
-            return float(prediccion_futura), None
-
-        except Exception as e:
-            return None, f"Fallo en los tensores de Keras: {str(e)}"
+        # 👇 Todo el código original se queda aquí abajo comentado (apagado) por si un día lo quieres reactivar
+        # try:
+        #     if len(ventas_brutas) < 3:
+        #         return None, "Bro, se necesitan al menos 3 ventas registradas para que la Red Neuronal pueda hallar un patrón."
+        #
+        #     X = np.array([i for i in range(len(ventas_brutas))], dtype=np.float32).reshape(-1, 1)
+        #     y = np.array([float(v[4]) for v in ventas_brutas], dtype=np.float32)
+        #
+        #     model = Sequential([
+        #         Dense(64, activation='relu', input_shape=(1,)), 
+        #         Dense(32, activation='relu'),                  
+        #         Dense(1)                                       
+        #     ])
+        #
+        #     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.01), loss='mse')
+        #     model.fit(X, y, epochs=150, verbose=0)
+        #
+        #     siguiente_punto = np.array([[len(ventas_brutas)]], dtype=np.float32)
+        #     prediccion_futura = model.predict(siguiente_punto, verbose=0)[0][0]
+        #
+        #     if prediccion_futura < 0: 
+        #         prediccion_futura = 0.0
+        #
+        #     return float(prediccion_futura), None
+        #
+        # except Exception as e:
+        #     return None, f"Fallo en los tensores de Keras: {str(e)}"
 
     def preguntar_asistente(self, pregunta_usuario):
         try:
@@ -77,7 +74,7 @@ class IAController:
             contexto_prediccion = ""
             
             if any(palabra in query for palabra in ["predic", "futuro", "pronostico", "keras", "tensorflow", "neuronal"]):
-                # Disparamos la Red Neuronal profunda
+                # Disparamos la función (que ahora solo devolverá nuestro mensaje de que está desactivada)
                 resultado_keras, error_keras = self.entrenar_red_neuronal_keras(ventas_brutas)
                 
                 if error_keras:
